@@ -31,19 +31,19 @@ export class ConexoBot extends TipBot {
     const text = await item?.evaluate((e) => e.innerHTML);
     await page.reload();
 
-    await this.InteceptResponse(page, text);
+    this.answerGroup = await this.InteceptResponse(page, text);
   }
   private async InteceptResponse(page: Page, text: string | undefined) {
+    let group: Array<ConexoGroups>;
     page.on('response', async (response) => {
       const url = 'https://conexo.ws/game-specs.json';
       if (response.url() == url) {
         const res: ConexoResponse = await response.json();
         let groupid = this.iterateOverResponse(res, text);
-        this.answerGroup = res[groupid].groups;
-
-        console.log(this.answerGroup);
+        group = res[groupid].groups;
       }
     });
+    return group;
   }
   private iterateOverResponse(res: ConexoResponse, text: string | undefined) {
     let id = '';
