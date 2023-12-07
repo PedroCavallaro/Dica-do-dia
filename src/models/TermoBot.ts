@@ -2,6 +2,7 @@ import { Page } from 'puppeteer';
 import { TipBot } from './TipBot';
 import { TERMO } from '../enums/TermoEnum';
 import { LocalStorageFormat } from '../@types/types';
+import { Injectable } from '@nestjs/common';
 
 export class TermoBot extends TipBot {
   #answers = new Map();
@@ -9,14 +10,19 @@ export class TermoBot extends TipBot {
   constructor(urls: Array<string>) {
     super(urls);
   }
-  async runBot(): Promise<void> {
+  async run(): Promise<void> {
     const page1 = await this.launch();
     const page2 = await this.launch();
     const page3 = await this.launch();
 
-    await this.goToAndGetAnswer(page1, this.urls[0], TERMO.termo);
-    await this.goToAndGetAnswer(page2, this.urls[1], TERMO.dueto);
-    await this.goToAndGetAnswer(page3, this.urls[2], TERMO.quarteto);
+    await Promise.all([
+      this.goToAndGetAnswer(page1, this.urls[0], TERMO.termo),
+      this.goToAndGetAnswer(page2, this.urls[1], TERMO.dueto),
+      this.goToAndGetAnswer(page3, this.urls[2], TERMO.quarteto),
+    ]);
+    await page1.close();
+    await page2.close();
+    await page3.close();
   }
 
   async goToAndGetAnswer(page: Page, url: string, identifier: string) {
@@ -48,14 +54,22 @@ export class TermoBot extends TipBot {
   }
 
   async getAnswerGeneric(page: Page, gameIdentifier: string) {
-    setTimeout(async () => {
-      const localStorage = await this.retrieveItemFromLs(page, gameIdentifier);
-      const { answer } = localStorage;
-      this.#answers.set(
-        gameIdentifier,
-        answer.state.map((e) => e.solution),
-      );
-    }, 3000);
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        const localStorage = await this.retrieveItemFromLs(
+          page,
+          gameIdentifier,
+        );
+        const { answer } = localStorage;
+
+        resolve(
+          this.#answers.set(
+            gameIdentifier,
+            answer.state.map((e) => e.solution),
+          ),
+        );
+      }, 3000);
+    });
   }
   get answers() {
     return this.#answers;

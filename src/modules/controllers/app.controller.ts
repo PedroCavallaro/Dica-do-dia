@@ -1,12 +1,15 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Inject, Render } from '@nestjs/common';
+import { AppService } from '../services/app.service';
 
 @Controller()
 export class AppController {
-  constructor() {}
+  @Inject(AppService)
+  private readonly service: AppService;
 
   @Get()
   @Render('index')
-  root() {
-    return { message: 'oi' };
+  async root() {
+    console.log(await this.service.buildAnswer());
+    return this.service.buildAnswer();
   }
 }

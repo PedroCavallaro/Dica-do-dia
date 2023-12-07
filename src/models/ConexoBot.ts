@@ -1,5 +1,6 @@
 import { Page } from 'puppeteer';
 import { TipBot } from './TipBot';
+import { Injectable } from '@nestjs/common';
 
 type ConexoGroups = {
   number: number;
@@ -32,6 +33,8 @@ export class ConexoBot extends TipBot {
     await page.reload();
 
     this.answerGroup = await this.InteceptResponse(page, text);
+
+    await page.close();
   }
   private async InteceptResponse(page: Page, text: string | undefined) {
     let group: Array<ConexoGroups>;

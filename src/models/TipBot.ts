@@ -1,23 +1,24 @@
-import puppeteer, { Page, PuppeteerNode } from "puppeteer";
+import { Injectable } from '@nestjs/common';
+import puppeteer, { Page, PuppeteerNode } from 'puppeteer';
 
 class TipBot {
-    #pup: PuppeteerNode;
-    #urls: Array<string>;
+  #pup: PuppeteerNode;
+  #urls: Array<string>;
 
-    constructor(urls: Array<string>) {
-        this.#urls = urls;
-        this.#pup = puppeteer;
-    }
-    async launch(): Promise<Page> {
-        const browser = await this.#pup.launch({ headless: false });
-        const page = await browser.newPage();
+  constructor(urls: Array<string>) {
+    this.#urls = urls;
+    this.#pup = puppeteer;
+  }
+  async launch(): Promise<Page> {
+    const browser = await this.#pup.launch({ headless: true });
+    const page = await browser.newPage();
 
-        return page;
-    }
-    async getAnswers() {}
+    return page;
+  }
+  async getAnswers() {}
 
-    get urls() {
-        return this.#urls;
-    }
+  get urls() {
+    return this.#urls;
+  }
 }
 export { TipBot };
